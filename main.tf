@@ -6,10 +6,10 @@ provider "azuread" {
 }
 
 
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
-}
+# resource "azurerm_resource_group" "rg" {
+#   name     = var.resource_group_name
+#   location = var.location
+# }
 
 locals {
   infra_rg_name       = "aks-poc"
@@ -18,7 +18,7 @@ locals {
 
 # The main resource group
 resource "azurerm_resource_group" "main" {
-  name     = locals.infra_rg_name
+  name     = local.infra_rg_name
   location = var.location
 }
 
@@ -30,15 +30,17 @@ data "azurerm_resource_group" "nodes" {
 
 # Setting up networking
 # use an existing VNET
-data "azurerm_virtual_network" "main" {
+resource "azurerm_virtual_network" "main" {
   name                = "aks-poc-vnet"
   resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  address_space       = ["10.0.0.0/16"] 
 }
 
 # create the subnet
 resource "azurerm_subnet" "aks" {
   name                 = "aks-subnet"
-  virtual_network_name = data.azurerm_virtual_network.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.0.0/24"]                  # Replace with the desired address prefix
   resource_group_name  = azurerm_resource_group.main.name # Replace with the appropriate resource group name
 }
@@ -51,9 +53,15 @@ resource "azurerm_network_security_group" "aks" {
 
   security_rule {
     # Add security rule attributes here
-  }
-  security_rule {
-    # Add security rule attributes here
+    name                       = "allow_ssh"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 }
 
@@ -92,7 +100,7 @@ resource "azurerm_role_assignment" "sudo_rg_nodes" {
 # If VNET is under another RG, give rights to read stuff
 resource "azurerm_role_definition" "network_vnet_reader" {
   name  = "custom-k8s-network-vnet-reader"
-  scope = data.azurerm_virtual_network.main.id
+  scope = azurerm_virtual_network.main.id
 
   permissions {
     actions = [
@@ -106,8 +114,8 @@ resource "azurerm_role_definition" "network_vnet_reader" {
 }
 
 resource "azurerm_role_assignment" "network_vnet_reader" {
-  name               = "custom-k8s-network-vnet-reader" # Add the name attribute here
-  scope              = data.azurerm_virtual_network.main.id
+  # name               = azurerm_role_definition.network_vnet_reader.name
+  scope              = azurerm_virtual_network.main.id
   role_definition_id = azurerm_role_definition.network_vnet_reader.role_definition_resource_id
   principal_id       = data.azuread_service_principal.main.id
 }
