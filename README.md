@@ -20,3 +20,4 @@ To get started with this project, you'll need to have Terraform and Kubernetes i
 2. Navigate to the project directory
 3. Run `terraform init` to initialize your Terraform workspace
 4. Run `terraform apply` to create the infrastructure
+5. Once Terraform finish deploying, run `az aks get-credentials --resource-group aks-poc --name my-aks-cluster --admin` to setup the kubeconfig and start using `kubectl`
