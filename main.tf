@@ -72,6 +72,7 @@ resource "azurerm_public_ip" "public_lb" {
   resource_group_name = local.infra_nodes_rg_name
   location            = var.location # Add the location attribute here
   allocation_method   = "Static"     # Add the allocation_method attribute here with a valid value
+  depends_on = [azurerm_kubernetes_cluster.main]
 }
 
 # create identity (service principal, permissions for Kubernetes to create LoadBalancer)
