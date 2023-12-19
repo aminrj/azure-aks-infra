@@ -1,7 +1,3 @@
-provider "azurerm" {
-  features {}
-}
-
 locals {
   infra_rg_name       = "aks-poc"
   infra_nodes_rg_name = "aks-poc-nodes"
@@ -29,29 +25,35 @@ resource "azurerm_kubernetes_cluster" "main" {
   node_resource_group = local.infra_nodes_rg_name
   kubernetes_version  = "1.28"
 
-  default_node_pool {
-    name                        = "default"
-    node_count                  = 2
-    os_disk_size_gb             = 30
-    vm_size                     = "Standard_D2_v2"
-    temporary_name_for_rotation = "tmpdefault"
-    # vnet_subnet_id              = azurerm_subnet.aks.id
-  }
-
-  linux_profile {
-    admin_username = "azureuser"
-    ssh_key {
-      key_data = file("~/.ssh/id_rsa_azure.pub")
-    }
-  }
-
   identity {
     type = "SystemAssigned"
   }
 
-  azure_active_directory_role_based_access_control {
-    managed            = true
-    azure_rbac_enabled = true
-    # admin_group_object_ids = var.kubernetes_rbac_admin_groups
+  default_node_pool {
+    name                        = "agentpool"
+    node_count                  = var.node_count
+    # os_disk_size_gb             = 30
+    vm_size                     = "Standard_D2_v2"
+    # temporary_name_for_rotation = "tmpdefault"
+    # vnet_subnet_id              = azurerm_subnet.aks.id
   }
+
+  linux_profile {
+    admin_username = var.username
+    ssh_key {
+      # key_data = file("~/.ssh/id_rsa_azure.pub")
+      key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
+    }
+  }
+
+  network_profile {
+    network_plugin    = "kubenet"
+    load_balancer_sku = "standard"
+  }
+
+  # azure_active_directory_role_based_access_control {
+  #   managed            = true
+  #   azure_rbac_enabled = true
+  #   # admin_group_object_ids = var.kubernetes_rbac_admin_groups
+  # }
 }

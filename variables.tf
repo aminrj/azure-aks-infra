@@ -19,3 +19,37 @@ variable "kubernetes_rbac_admin_groups" {
   type    = string
   default = "kubernetes-rbac-admin-groups"
 }
+
+variable "node_count" {
+  type        = number
+  description = "The initial quantity of nodes for the node pool."
+  default     = 2
+}
+
+variable "msi_id" {
+  type        = string
+  description = "The Managed Service Identity ID. Set this value if you're running this example using Managed Identity as the authentication method."
+  default     = null
+}
+
+variable "username" {
+  type        = string
+  description = "The admin username for the new cluster."
+  default     = "azureadmin"
+}
+
+variable "ARM_SUBSCRIPTION_ID" {
+  type = string
+}
+
+variable "ARM_TENANT_ID" {
+  type = string
+}
+
+variable "ARM_CLIENT_ID" {
+  type = string
+}
+
+variable "ARM_CLIENT_SECRET" {
+  type = string
+}
