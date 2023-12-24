@@ -22,3 +22,12 @@ To get started with this project, you'll need to have Terraform and Kubernetes i
 4. Run `terraform apply` to create the infrastructure
 5. Once Terraform finish deploying, run `az aks get-credentials --resource-group aks-poc --name my-aks-cluster --admin` to setup the kubeconfig and start using `kubectl`
 6. Test with `kubectl get nodes`
+
+## Test ingress setup
+
+The External-DNS service is deployed to the cluster and should pick-up any ingress created to update AzureDNS service with new domain records.
+To test the ingress setup, follow these steps:
+1. Run `kubectl apply -f k8s/ingress-example`
+2. Run `kubectl get ingress` to check the loadbalancer is created with a public-ip
+3. Wait for the domain to be provisionned on AzureDNS
+4. Navigate to the domain and check
