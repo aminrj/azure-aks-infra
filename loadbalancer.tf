@@ -44,7 +44,7 @@ resource "helm_release" "cert_manager" {
   }
 }
 
-# External DNS
+# # External DNS
 # resource "helm_release" "external_dns" {
 #   name = "external-dns"
 
