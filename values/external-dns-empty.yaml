@@ -1,0 +1,20 @@
+---
+fullnameOverride: external-dns
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: true
+  
+rbac:
+  create: true
+  clusterRole: true
+  apiVersion: v1
+
+provider: azure
+
+azure:
+  tenantId:  # Azure AD Tenant ID
+  subscriptionId: # Azure Subscription ID
+  resourceGroup: # Azure Resource Group Name
+  aadClientId: # Azure AD Client ID
+  aadClientSecret: # Azure AD Client Secret
