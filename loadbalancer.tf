@@ -51,6 +51,64 @@ resource "helm_release" "cert_manager" {
   }
 }
 
+resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt-staging"
+    }
+    "spec" = {
+      "acme" = {
+        "email" = "hello@molntek.com"
+        "privateKeySecretRef" = {
+          "name" = "letsencrypt-staging"
+        }
+        "server" = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "http01" = {
+              "ingress" = {
+                "class" = "external-nginx"
+              }
+            }
+          },
+        ]
+      }
+    }
+  }
+  depends_on = [helm_release.cert_manager]
+}
+
+resource "kubernetes_manifest" "clusterissuer_letsencrypt_prod" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "letsencrypt-prod"
+    }
+    "spec" = {
+      "acme" = {
+        "email" = "hello@molntek.com"
+        "privateKeySecretRef" = {
+          "name" = "letsencrypt-prod"
+        }
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+        "solvers" = [
+          {
+            "http01" = {
+              "ingress" = {
+                "class" = "external-nginx"
+              }
+            }
+          },
+        ]
+      }
+    }
+  }
+  depends_on = [helm_release.cert_manager]
+}
+
 # # External DNS
 resource "helm_release" "external_dns" {
   name = "external-dns"
@@ -61,5 +119,5 @@ resource "helm_release" "external_dns" {
   create_namespace = true
   version          = "6.28.6"
 
-  values     = [file("${path.module}/values/external-dns.yaml")]
+  values = [file("${path.module}/values/external-dns.yaml")]
 }
