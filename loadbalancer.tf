@@ -51,6 +51,8 @@ resource "helm_release" "cert_manager" {
   }
 }
 
+# Cert manager cluster issuers
+# Staging
 resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
@@ -80,6 +82,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
   depends_on = [helm_release.cert_manager]
 }
 
+# Production
 resource "kubernetes_manifest" "clusterissuer_letsencrypt_prod" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
