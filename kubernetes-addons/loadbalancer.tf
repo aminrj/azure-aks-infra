@@ -51,6 +51,7 @@ resource "helm_release" "cert_manager" {
   }
 }
 
+# TODO: find a way to wait for the CRDs to be installed
 # Cert manager cluster issuers
 # Staging
 resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
@@ -79,7 +80,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_staging" {
       }
     }
   }
-  depends_on = [helm_release.cert_manager]
+  depends_on = [azurerm_kubernetes_cluster.main]
 }
 
 # Production
@@ -109,7 +110,7 @@ resource "kubernetes_manifest" "clusterissuer_letsencrypt_prod" {
       }
     }
   }
-  depends_on = [helm_release.cert_manager]
+  depends_on = [azurerm_kubernetes_cluster.main]
 }
 
 # # External DNS
